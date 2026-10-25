@@ -1,6 +1,6 @@
-# 🧺 Laundry Tracker
+# 🧺 Laundry Tracker for a Student Residence
 
-A lightweight, mobile-first web app that shows which washers and dryers are free in a shared student residence, and runs a waitlist when they're all busy.
+A lightweight, mobile-first web app that shows which machine is free in a shared student residence, and runs a waitlist when they're all busy.
 
 <div align="center">
 <img src="docs/laundry-room.jpg" alt="The real laundry room: dryers 3 and 4 on top, washers 1 and 2 below" height="300"> &nbsp;&nbsp;
@@ -10,8 +10,8 @@ A lightweight, mobile-first web app that shows which washers and dryers are free
 
 ## 📌 Context & the problem
 
-- **The setting:** about 60 to 70 residents share just 2 washing machines and 2 dryers.
-- **The pain point:** weekends are the peak, and everyone wants a machine at the same time. Residents coordinated by editing the WhatsApp group description.
+- **The setting:** about 60 to 70 residents of a student residential house share just 2 washing machines and 2 dryers. Residents coordinated by editing the WhatsApp group description when they were using a machine to update other residents who wanted to use it.
+- **The pain point:** during peak time like weekends, conflicts could happen: for example, someone forgot to update the WhatsApp group description, busy with the laundry chore
 - **Why that failed:**
   - Updating the description was tedious and easy to forget.
   - Opening the group description just to check a machine was slow, so many people never did.
