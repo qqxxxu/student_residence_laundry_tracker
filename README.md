@@ -5,7 +5,7 @@ A lightweight, mobile-first web app that shows which machine is free in a shared
 <div align="center">
 <img src="docs/laundry-room.jpg" alt="The real laundry room: dryers 3 and 4 on top, washers 1 and 2 below" height="300"> &nbsp;&nbsp;
 <img src="docs/app-tiles.png" alt="The app: four tiles in the same layout, dryers 3 and 4 on top, washers 1 and 2 below" height="300">
-<br><sub>Above: the real laundry room. Under: the app UI mirroring the actual layout</sub>
+<br><sub>The actual laundry room with 2 washers & 2 dryers VS the web app, with its UI mirroring the actual layout</sub>
 </div>
 
 ## 📌 Context & the problem
@@ -34,7 +34,7 @@ Laundry Tracker is a zero-install web app. Residents scan a QR code by the machi
 <div align="center">
 <img src="docs/edge-clothes-inside.png" alt="Dryer 3 finished: clothes still inside, a Clothes taken out button, and the waitlist below" height="340"> &nbsp;&nbsp;
 <img src="docs/edge-reserved-turn.png" alt="Dryer 3 reserved for the first person in line, with a 15-minute countdown" height="340">
-<br><sub>Above: the cycle has ended, but the machine stays blocked until someone taps "Clothes taken out". Under: once the clothes are out, it is reserved for the first person in line for 15 minutes.</sub>
+<br><sub>left: the cycle has ended, but the machine stays blocked until someone taps "Clothes taken out". right: once the clothes are out, it is reserved for the first person in line for 15 minutes.</sub>
 </div>
 
 ## 📣 Rollout
