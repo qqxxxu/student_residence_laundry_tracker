@@ -60,9 +60,20 @@ The main obstacle was to consider many possible edge cases in real usage: someon
 2. **One waitlist per machine.** My first version had one list for all washers and one for all dryers. I changed it to one list per machine.
 3. **French version added.** The first version was English only. Many residents are native French speakers, so I added a language switch.
 
+## 📅 Updates
+
+**November 18, 2026: changes based on real use**
+
+After about three weeks of use, I collected residents' feedback and the problems that came up in practice, and made these changes:
+
+- **Leaving the waitlist from any phone.** Some residents switched browsers or phones and could no longer remove themselves. Now anyone can remove a name, after a confirmation step, and every removal is recorded in the history.
+- **Waiting for two machines.** Some residents genuinely need two machines, for example for two loads. Starting a machine no longer removes you from your other waitlists. Instead, the app asks whether you still need each spot.
+- **"Tell the group" button.** Residents asked for notifications. An automatic WhatsApp bot would need a verified business account, so instead, when a machine frees up, a button opens WhatsApp with a ready-made message telling the next person it's their turn.
+- **Cleaning reminder.** Residents asked for a reminder to keep the machines clean. The "Finished" screen now asks the person collecting their laundry to clean the dryer filter or wipe the washer drum.
+
 ## ⚠️ Limitations
 
-- **No notifications.** You have to open the page to see that it's your turn.
+- **No automatic notifications.** You have to open the page to see that it's your turn, though anyone nearby can alert the next person through WhatsApp.
 - **No login.** Anyone with the link can edit, so there is a 15-minute undo and a short history for each machine.
 
 ## 🛠️ Tech & process
