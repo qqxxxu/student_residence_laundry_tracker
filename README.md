@@ -26,7 +26,7 @@ Laundry Tracker is a zero-install web app. Residents scan a QR code by the machi
 - **Waitlist with a 15-minute rule.** When a machine frees up, the first person in line has 15 minutes to start it, or the turn passes to the next person.
 - **Edge cases handled:**
   - The 15 minutes only start once the machine has been emptied (someone taps "Clothes taken out"), so a late pick-up never costs the next person their window.
-  - You can join a machine's waitlist only once, and starting any machine takes you off every list.
+  - You can join a machine's waitlist only once. You can wait for several machines, and when you start one, the app asks whether you still need your other spots.
   - You can leave a waitlist if you find another machine or change your plans.
   - Cycles can finish early or run late, so anyone can correct the time left or end a cycle early.
 - **English and French bilingual versions offered.**

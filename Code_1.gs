@@ -65,7 +65,8 @@ function write_(s) {
 // Each machine has its own waitlist. When a machine becomes free (someone tapped "Clothes taken out",
 // "End early" or "Fixed"), it is saved for the first person on its list for HOLD_MINUTES.
 // If they don't start in time they're removed from that list and the next person gets HOLD_MINUTES.
-// One person can be on several lists, but only one machine is saved for them at a time.
+// One person can be on several lists and can have several machines saved at once (some people need two).
+// When they start one, the page asks whether they still need the others.
 function settle_(s) {
   const now = Date.now();
   let changed = false;
@@ -75,10 +76,6 @@ function settle_(s) {
     s.q[m.id] = s.q[m.id].filter(function (e) { return e.t > cutoff; });
     if (s.q[m.id].length !== before) changed = true;
   });
-  const holding = function (exceptId) {   // names that already have a machine saved
-    return Object.keys(s.hold).filter(function (k) { return k !== exceptId && s.hold[k].qid; })
-      .map(function (k) { return String(s.hold[k].name).trim().toLowerCase(); });
-  };
 
   MACHINES.forEach(function (m) {
     const st = s.m[m.id];
@@ -101,8 +98,7 @@ function settle_(s) {
     }
     s.hold[m.id] = { base: base };
     while (true) {
-      const busy = holding(m.id);
-      const next = s.q[m.id].filter(function (e) { return busy.indexOf(e.name.trim().toLowerCase()) < 0; })[0];
+      const next = s.q[m.id][0];
       if (!next) break;
       const until = Math.max(base, next.t) + HOLD_MINUTES * 60000;
       if (until <= now) {                                    // their turn already came and went
@@ -130,8 +126,7 @@ function getStatus() {
   }
   const queue = {};
   Object.keys(s.q).forEach(function (id) {
-    // entries from before private keys existed are marked old, so anyone can remove them
-    queue[id] = s.q[id].map(function (e) { return { id: e.id, name: e.name, t: e.t, old: !e.key }; });
+    queue[id] = s.q[id].map(function (e) { return { id: e.id, name: e.name, t: e.t }; });   // keys never leave the server
   });
   return { machines: MACHINES, state: s.m, log: s.log, queue: queue, hold: s.hold, now: Date.now(),
            undoMinutes: UNDO_MINUTES, holdMinutes: HOLD_MINUTES, maxMinutes: MAX_MINUTES };
@@ -205,10 +200,16 @@ function start(id, minutesLeft, actor, mode) {
       }
       change_(s, m.id, actor, { status: 'use', end: end, who: who_(actor) }, 'start');
     }
-    // Starting a machine takes you off every waitlist
-    if (who_(actor)) MACHINES.forEach(function (x) {
-      s.q[x.id] = s.q[x.id].filter(function (e) { return !same_(e.name, actor); });
+    // Starting a machine takes you off THIS machine's waitlist only. Some people really need two machines,
+    // so the other lists are kept and the page asks whether you still need them.
+    if (!who_(actor)) return;
+    s.q[m.id] = s.q[m.id].filter(function (e) { return !same_(e.name, actor); });
+    const also = [];
+    MACHINES.forEach(function (x) {
+      if (x.id === m.id) return;
+      s.q[x.id].forEach(function (e) { if (same_(e.name, actor)) also.push({ id: x.id, entry: e.id }); });
     });
+    return { also: also };
   });
 }
 
@@ -252,7 +253,7 @@ function undo(id, actor) {
 }
 
 // ===== Waitlist (one per machine) =====
-// Joining returns a private key that stays on that phone. Only that key can remove the entry.
+// Joining returns a private key that stays on that phone, so the page can show "You" next to your own name.
 function joinQueue(id, name) {
   const m = machine_(id);
   name = who_(name);
@@ -266,12 +267,16 @@ function joinQueue(id, name) {
   });
 }
 
-function leaveQueue(id, entryId, key) {
+// Anyone can remove anyone (people switch browsers and lose their key).
+// The key only tells "left" apart from "removed by someone else", and every removal is written to the history.
+function leaveQueue(id, entryId, key, actor) {
   const m = machine_(id);
   return withLock_(function (s) {
     const e = s.q[m.id].filter(function (x) { return x.id === entryId; })[0];
     if (!e) return;
-    if (e.key && e.key !== key) throw new Error('E:notYours');
     s.q[m.id] = s.q[m.id].filter(function (x) { return x.id !== entryId; });
+    const own = (e.key && key && e.key === key) || same_(e.name, actor);
+    if (own) addLog_(s, m.id, e.name, 'qleave');
+    else addLog_(s, m.id, actor, 'qremove', e.name);
   });
 }

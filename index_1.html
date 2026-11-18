@@ -86,6 +86,8 @@ button{font:inherit;cursor:pointer}
 .hist li{padding:3px 0}
 button:focus-visible,input:focus-visible,.tile:focus-visible{outline:3px solid #9DB9F5;outline-offset:2px}
 button:disabled{opacity:.6}
+.tip{background:#EAF7EF;border:1.5px solid #BFE6CC;color:#1F5E3A;border-radius:16px;padding:12px 14px;font-size:15px;font-weight:600;margin:0 0 16px;text-align:center}
+.share{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border:0;border-radius:16px;background:#25D366;color:#06381C;font-size:16px;font-weight:800;margin:0 0 16px;text-decoration:none}
 #toast{position:fixed;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:488px;margin:0 auto;background:#B42318;color:#fff;border-radius:14px;padding:12px 16px;font-weight:700;display:none;z-index:40}
 #toast.show{display:block}
 #modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:24px;z-index:30}
@@ -143,13 +145,18 @@ const TEXT = {
     changeTime: 'Change time', endEarly: 'End early', itsEmpty: 'It’s empty', takeOver: 'Take over', notDone: 'Not done yet',
     save: 'Save', cancel: 'Cancel', history: 'History', hideHistory: 'Hide history', noHistory: 'No history yet', undo: 'Mistake? Undo',
     waitlist: 'Waitlist', join: 'Join', you: 'You', leave: 'Leave', no: 'No', yes: 'Yes',
-    noStorage: 'This browser can’t remember you, so you won’t be able to leave. Try Safari or Chrome, not in private mode.',
+    remove: 'Remove', askRemove: n => 'Remove ' + n + ' from the waitlist?',
+    tellGroup: 'Tell the group on WhatsApp',
+    cleanDryer: 'Quick favour: please clean the lint filter for the next person. Thank you! 🙏',
+    cleanWasher: 'Quick favour: please give the drum a quick wipe for the next person. Thank you! 🙏',
+    askAlso: n => 'You’re also on the waitlist for ' + n + '. Still need it?',
     skipTurn: 'Can’t come? Skip my turn', askSkip: 'Skip your turn? The next person gets the machine.',
     askEnd: n => 'End ' + n + ' now?', askEmpty: n => 'Is ' + n + ' really empty?',
     log: {
       start: 'started', earlier: 'logged an earlier start', proxy: 'marked it in use', takeover: x => 'took over (was ' + (x || 'unnamed') + ')',
       edit: x => 'set ' + x + ' min left', ended: 'ended early', out: 'took the clothes out', fixed: 'marked it fixed',
-      broken: 'marked it out of order', undo: 'undid a change', reset: 'reset everything'
+      broken: 'marked it out of order', undo: 'undid a change', reset: 'reset everything',
+      qleave: 'left the waitlist', qremove: x => 'removed ' + x + ' from the waitlist'
     },
     err: {
       minutes: max => 'Enter a number from 1 to ' + max + '.', minutesEdit: max => 'Enter a number from 0 to ' + max + '.',
@@ -175,13 +182,18 @@ const TEXT = {
     changeTime: 'Modifier la durée', endEarly: 'Arrêter maintenant', itsEmpty: 'La machine est vide', takeOver: 'Prendre la machine', notDone: 'Pas encore terminé',
     save: 'Enregistrer', cancel: 'Annuler', history: 'Historique', hideHistory: 'Masquer l’historique', noHistory: 'Aucun historique', undo: 'Erreur ? Annuler',
     waitlist: 'File d’attente', join: 'Rejoindre', you: 'Vous', leave: 'Quitter', no: 'Non', yes: 'Oui',
-    noStorage: 'Ce navigateur ne peut pas vous mémoriser, vous ne pourrez donc pas quitter la file. Essayez Safari ou Chrome, hors navigation privée.',
+    remove: 'Retirer', askRemove: n => 'Retirer ' + n + ' de la file d’attente ?',
+    tellGroup: 'Prévenir le groupe sur WhatsApp',
+    cleanDryer: 'Petit service : merci de nettoyer le filtre pour la personne suivante ! 🙏',
+    cleanWasher: 'Petit service : merci de donner un petit coup de chiffon au tambour pour la personne suivante ! 🙏',
+    askAlso: n => 'Vous êtes aussi dans la file d’attente du ' + n.toLowerCase() + '. Vous en avez encore besoin ?',
     skipTurn: 'Indisponible ? Passer mon tour', askSkip: 'Passer votre tour ? La personne suivante aura la machine.',
     askEnd: n => 'Arrêter le ' + n.toLowerCase() + ' maintenant ?', askEmpty: n => 'Le ' + n.toLowerCase() + ' est-il vraiment vide ?',
     log: {
       start: 'a démarré', earlier: 'a enregistré un départ antérieur', proxy: 'a marqué la machine comme occupée', takeover: x => 'a pris la machine (avant : ' + (x || 'sans nom') + ')',
       edit: x => 'a indiqué ' + x + ' min restantes', ended: 'a arrêté plus tôt', out: 'a retiré le linge', fixed: 'a signalé la réparation',
-      broken: 'a signalé une panne', undo: 'a annulé une action', reset: 'a tout réinitialisé'
+      broken: 'a signalé une panne', undo: 'a annulé une action', reset: 'a tout réinitialisé',
+      qleave: 'a quitté la file d’attente', qremove: x => 'a retiré ' + x + ' de la file d’attente'
     },
     err: {
       minutes: max => 'Entrez un nombre de 1 à ' + max + '.', minutesEdit: max => 'Entrez un nombre de 0 à ' + max + '.',
@@ -313,7 +325,7 @@ function tile(m) {
 }
 
 // ---------- sheet ----------
-function openSheet(id) { sheetId = id; mode = null; showHist = false; draft.minutes = ''; draft.note = ''; renderSheet(); $('shade').classList.add('show'); $('sheet').classList.add('show'); }
+function openSheet(id) { cleanFor = null; sheetId = id; mode = null; showHist = false; draft.minutes = ''; draft.note = ''; renderSheet(); $('shade').classList.add('show'); $('sheet').classList.add('show'); }
 function closeSheet() { sheetId = null; $('shade').classList.remove('show'); $('sheet').classList.remove('show'); }
 $('shade').onclick = closeSheet;
 
@@ -363,13 +375,13 @@ function renderSheet() {
     if (s === 'turn') { const gap = el('div'); gap.style.height = '16px'; sh.appendChild(gap); sh.appendChild(waitlist(m)); }
     if (s === 'turn') {
       const entry = queue(m.id).find(e => e.id === h.qid);
-      if (myKey(h.qid) || (entry && entry.old))
-        links.push([T.skipTurn, async () => { if (await ask(T.askSkip)) run('leaveQueue', [m.id, h.qid, myKey(h.qid) || '']); }]);
+      if (entry) links.push([T.skipTurn, async () => { if (await ask(T.askSkip)) run('leaveQueue', [m.id, h.qid, myKey(h.qid) || '', myName || h.name]); }]);
     }
     if (s === 'free' && queue(m.id).length) { const gap = el('div'); gap.style.height = '16px'; sh.appendChild(gap); sh.appendChild(waitlist(m)); }
     links.push([T.markInUseLink, () => setMode('proxy')], [T.outOfOrder, () => setMode('broken')]);
   } else if (s === 'turn') {
     const b = el('div', 'box turn'); b.appendChild(el('h3', null, T.waitingFor(h.name))); b.appendChild(el('p', null, T.minLeft(mins(h.until)))); sh.appendChild(b);
+    sh.appendChild(shareTurn(m, h));
     sh.appendChild(waitlist(m));
     links.push([T.markInUseLink, () => setMode('proxy')]);
   } else if (s === 'use') {
@@ -377,12 +389,13 @@ function renderSheet() {
     const tm = el('div', 'timer', mmss(c.end)); tm.dataset.mmss = c.end; b.appendChild(tm);
     b.appendChild(el('span', 'pill', T.usedBy(whoName(c.who)))); b.appendChild(el('p', null, T.doneAt(fmt(c.end))));
     sh.appendChild(b); sh.appendChild(waitlist(m));
-    links.push([T.changeTime, () => setMode('edit')], [T.endEarly, async () => { if (await ask(T.askEnd(mname(m)))) act('freeMachine', m.id, myName); }], [T.itsEmpty, () => setMode('takeover')]);
+    links.push([T.changeTime, () => setMode('edit')], [T.endEarly, async () => { if (await ask(T.askEnd(mname(m)))) { cleanFor = m.id; act('freeMachine', m.id, myName); } }], [T.itsEmpty, () => setMode('takeover')]);
   } else if (s === 'done') {
     const b = el('div', 'box done'); b.appendChild(el('h3', null, T.cycleComplete));
     const p = el('p'); p.append(T.stillInside[0]); p.appendChild(el('b', null, c.who && c.who !== 'Unknown' && c.who !== 'Not logged' ? c.who : T.someone)); p.append(T.stillInside[1]); b.appendChild(p);
     sh.appendChild(b);
-    sh.appendChild(btn(T.clothesOut, 'primary', () => act('freeMachine', m.id, myName)));
+    sh.appendChild(cleanTip(m));
+    sh.appendChild(btn(T.clothesOut, 'primary', () => { cleanFor = m.id; act('freeMachine', m.id, myName); }));
     const gap = el('div'); gap.style.height = '16px'; sh.appendChild(gap);
     sh.appendChild(waitlist(m));
     links.push([T.notDone, () => setMode('edit')]);
@@ -402,6 +415,18 @@ function renderSheet() {
 }
 
 let modeState = null;
+// Opens WhatsApp with a ready-made message (both languages, since the group mixes both). The person picks the group and taps send.
+function shareTurn(m, h) {
+  const n = mins(h.until);
+  const text = '🧺 ' + TEXT.en[m.type] + ' ' + m.id + ' is free. ' + h.name + ', it’s your turn (' + n + ' min left).\n' +
+               TEXT.fr[m.type] + ' ' + m.id + ' est libre. ' + h.name + ', c’est ton tour (encore ' + n + ' min).';
+  const a = el('a', 'share', '💬 ' + T.tellGroup);
+  a.href = 'https://wa.me/?text=' + encodeURIComponent(text); a.target = '_blank'; a.rel = 'noopener';
+  return a;
+}
+const cleanTip = m => el('div', 'tip', m.type === 'dryer' ? T.cleanDryer : T.cleanWasher);
+let cleanFor = null;   // machine whose panel shows the cleaning thank-you right after it was emptied
+
 function setMode(m) { mode = m; modeState = state(sheetId); draft.minutes = ''; renderSheet(); }
 
 function modeForm(m, c) {
@@ -443,13 +468,12 @@ function waitlist(m) {
     }));
     box.appendChild(row);
   }
-  if (!storageOk) { const w = el('p', 'hint', T.noStorage); w.style.margin = '10px 2px 0'; box.appendChild(w); }
   if (q.length) {
     const ol = el('ol');
     q.forEach((e, i) => {
       const li = el('li'); li.appendChild(el('span', 'n', '#' + (i + 1))); li.appendChild(el('span', 'who', e.name));
-      if (mineEntry(e)) { li.appendChild(el('span', 'me', T.you)); li.appendChild(btn(T.leave, 'x', () => run('leaveQueue', [m.id, e.id, myKey(e.id)]))); }
-      else if (e.old) li.appendChild(btn(T.leave, 'x', () => run('leaveQueue', [m.id, e.id, ''])));   // added before this version
+      if (mineEntry(e)) { li.appendChild(el('span', 'me', T.you)); li.appendChild(btn(T.leave, 'x', () => run('leaveQueue', [m.id, e.id, myKey(e.id), myName]))); }
+      else li.appendChild(btn(T.remove, 'x', async () => { if (await ask(T.askRemove(e.name))) run('leaveQueue', [m.id, e.id, '', myName]); }));
       ol.appendChild(li);
     });
     box.appendChild(ol);
@@ -466,7 +490,19 @@ function run(fn, args, after) {
     .then(d => { if (after) after(d); toast(''); working = false; apply(d, true); })
     .catch(e => { working = false; toast(errText(e)); render(); load(); });
 }
-function act(fn, ...args) { run(fn, args, () => { mode = null; draft.minutes = ''; draft.note = ''; }); }
+function act(fn, ...args) {
+  run(fn, args, d => {
+    mode = null; draft.minutes = ''; draft.note = '';
+    if (d.also && d.also.length) setTimeout(() => askAlso(d.also), 0);
+  });
+}
+// After starting a machine: ask, one machine at a time, whether to keep your other waitlist spots. "No" removes you.
+async function askAlso(list) {
+  for (const a of list) {
+    if (await ask(T.askAlso(mname(mach(a.id))))) continue;
+    try { apply(await call('leaveQueue', a.id, a.entry, myKey(a.entry) || '', myName), true); } catch (e) { toast(errText(e)); }
+  }
+}
 
 // ---------- timers ----------
 function tickClock() { const d = new Date(now()); $('date').textContent = dateStr(d); $('time').textContent = timeStr(d, true); }
