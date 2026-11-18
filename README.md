@@ -1,103 +1,186 @@
-# 🧺 Laundry Tracker for a Student Residence
+# Laundry Tracker for a Student Residence
 
-A lightweight, mobile-first web app that shows which machine is free in a shared student residence, and runs a waitlist when they're all busy.
+A mobile-friendly web app that helps residents coordinate shared washing machines and dryers through manually updated machine status and per-machine waitlists.
 
-<div align="center">
-<img src="docs/laundry-room.jpg" alt="The real laundry room: dryers 3 and 4 on top, washers 1 and 2 below" height="300"> &nbsp;&nbsp;
-<img src="docs/app-tiles.png" alt="The app: four tiles in the same layout, dryers 3 and 4 on top, washers 1 and 2 below" height="300">
-<br><sub>The actual laundry room with 2 washers & 2 dryers VS the web app, with its UI mirroring the actual layout</sub>
-</div>
+**A real-world product project: identifying a problem, building with AI assistance, introducing it to residents, and maintaining it through feedback.**
 
-## 📌 Context & the problem
+## How it started
 
-- **The setting:** about 60 to 70 residents of a student residential house share just 2 washing machines and 2 dryers. Residents coordinated by editing the WhatsApp group description when they were using a machine to update other residents who wanted to use it.
-- **The pain point:** during peak time like weekends, conflicts could happen: for example, someone forgot to update the WhatsApp group description, busy with the laundry chore
-- **Why that failed:**
-  - Updating the description was tedious and easy to forget.
-  - Opening the group description just to check a machine was slow, so many people never did.
-  - The description often didn't match the real machine, so clashes still happened. For example, someone loaded a machine that looked empty but had already been claimed in the description.
+On a busy Sunday morning, I found an empty washing machine and loaded my clothes. A few minutes later, someone posted in our residence’s WhatsApp group: who had used the machine she was waiting for?
 
-## 💡 The solution
+The machine looked available, but the coordination system told a different story.
 
-Laundry Tracker is a zero-install web app. Residents scan a QR code by the machines, or open the link in the group chat, and see the laundry room at a glance.
+Around 60–70 residents share two washing machines and two dryers. We had been tracking usage by editing the WhatsApp group description—a process that was easy to overlook and did not always reflect what was happening in the laundry room.
 
-- **Layout-mirrored UI.** A 2×2 grid copies the real room: dryers 3 and 4 on top, washers 1 and 2 below, with the same numbers as the machines.
-- **Clear machine states.** Available, In use (with a countdown), Finished (clothes still inside), Reserved for the next person in line, or Out of order. The page refreshes every 15 seconds.
-- **Waitlist with a 15-minute rule.** When a machine frees up, the first person in line has 15 minutes to start it, or the turn passes to the next person.
-- **Edge cases handled:**
-  - The 15 minutes only start once the machine has been emptied (someone taps "Clothes taken out"), so a late pick-up never costs the next person their window.
-  - You can join a machine's waitlist only once. You can wait for several machines, and when you start one, the app asks whether you still need your other spots.
-  - You can leave a waitlist if you find another machine or change your plans.
-  - Cycles can finish early or run late, so anyone can correct the time left or end a cycle early.
-- **English and French bilingual versions offered.**
+That morning, I used AI coding assistance to build an initial version of Laundry Tracker. Getting it into use, and adapting it to how people actually do laundry, became an ongoing project.
 
-<div align="center">
-<img src="docs/edge-clothes-inside.png" alt="Dryer 3 finished: clothes still inside, a Clothes taken out button, and the waitlist below" height="340"> &nbsp;&nbsp;
-<img src="docs/edge-reserved-turn.png" alt="Dryer 3 reserved for the first person in line, with a 15-minute countdown" height="340">
-<br><sub>left: the cycle has ended, but the machine stays blocked until someone taps "Clothes taken out". right: once the clothes are out, it is reserved for the first person in line for 15 minutes.</sub>
-</div>
+## My role and AI’s role
 
-## 📣 Rollout
+I initiated the project and took responsibility for the product work:
 
-The residence committee announced it in the residents' WhatsApp group, put a QR code on the wall next to the machines with a bilingual how-to poster, and added the link to the group description. Residents welcomed it, and it is now used as the residents' laundry tracking platform.
+- Identifying the problem from firsthand experience.
+- Defining the user flows and machine-status rules.
+- Incorporating suggestions from a residence committee member.
+- Refining the interface, wording, and English/French experience.
+- Testing behavior and coordinating the rollout with the residence committee.
+- Collecting feedback and directing changes after launch.
+
+**Most of the code was generated by Claude.** I used AI assistance to translate requirements into an implementation, check its behavior, and revise it as new problems emerged.
+
+The app runs on **Google Apps Script**. This project documents my product decisions, rollout, and ongoing maintenance, with the AI-assisted implementation available for inspection.
+
+## Designing around the laundry room
+
+Residents can open the app from a QR code beside the machines or a link in the WhatsApp group.
+
+The interface mirrors the physical room: dryers 3 and 4 above washers 1 and 2. This makes it easier to connect an on-screen status with the machine in front of you.
 
 <div align="center">
-<img src="docs/poster.jpg" alt="The bilingual how-to poster by the machines" width="250"> &nbsp;&nbsp;
-<img src="docs/whatsapp-announcement.png" alt="The announcement in the residents' group chat (link hidden)" width="250">
-<br><sub>The how-to poster and the group-chat announcement (link hidden for privacy).</sub>
+<img src="docs/laundry-room.jpg" alt="The residence laundry room, with two dryers above two washing machines" height="300">
+&nbsp;
+<img src="docs/app-tiles.png" alt="The app's four machine tiles arranged to match the laundry room" height="300">
+<br>
+<sub>The physical layout and the corresponding interface.</sub>
 </div>
 
-## 🔄 How it evolved
+Residents can:
 
-At first, the product was more like a web form and had a lot of redundant wording, as it was straight from AI vibe coding. Then I asked for advice from a committee member, who had been very supportive and gave me some advice from user's angle.
+- Record a machine’s use and estimated time remaining.
+- Distinguish an available machine from one whose cycle has finished but still contains clothes.
+- Join or leave a waitlist for a specific machine.
+- See a 15-minute reserved window when their turn arrives.
+- Correct the remaining time or mark a machine out of order.
+- Switch between English and French.
 
-I designed and added images for machine icons; cleaned up the UI and language; added French version for better usability.
+Machine status depends on residents’ updates; the app is not connected to the machines themselves.
 
-The main obstacle was to consider many possible edge cases in real usage: someone forgot to take out the laundry when it was done; someone's turn for laundry and would need to remove from waiting list of other machines, ....
+## Product decisions shaped by real use
 
+### 1. “Finished” does not mean “available”
 
-1. **Committee input.** The committee member suggested the 15-minute waitlist window, and showing the date and time at the top of the page.
-2. **One waitlist per machine.** My first version had one list for all washers and one for all dryers. I changed it to one list per machine.
-3. **French version added.** The first version was English only. Many residents are native French speakers, so I added a language switch.
+A countdown can reach zero while someone’s clothes are still inside.
 
-## 📅 Updates
+The app keeps these states separate. The next person’s 15-minute window begins when someone confirms that the clothes have been removed, so a late pickup does not consume their turn.
 
-**November 18, 2026: changes based on real use**
+The 15-minute window came from a residence committee member’s suggestion.
 
-After about three weeks of use, I collected residents' feedback and the problems that came up in practice, and made these changes:
+<div align="center">
+<img src="docs/edge-clothes-inside.png" alt="A finished cycle with clothes still inside" height="320">
+&nbsp;
+<img src="docs/edge-reserved-turn.png" alt="A machine reserved for the next person after clothes are removed" height="320">
+</div>
 
-- **Leaving the waitlist from any phone.** Some residents switched browsers or phones and could no longer remove themselves. Now anyone can remove a name, after a confirmation step, and every removal is recorded in the history.
-- **Waiting for two machines.** Some residents genuinely need two machines, for example for two loads. Starting a machine no longer removes you from your other waitlists. Instead, the app asks whether you still need each spot.
-- **"Tell the group" button.** Residents asked for notifications. An automatic WhatsApp bot would need a verified business account, so instead, when a machine frees up, a button opens WhatsApp with a ready-made message telling the next person it's their turn.
-- **Cleaning reminder.** Residents asked for a reminder to keep the machines clean. The "Finished" screen now asks the person collecting their laundry to clean the dryer filter or wipe the washer drum.
+### 2. One machine started does not mean every other spot is unnecessary
 
-## ⚠️ Limitations
+An earlier version automatically removed someone from all waitlists when they started a machine.
 
-- **No automatic notifications.** You have to open the page to see that it's your turn, though anyone nearby can alert the next person through WhatsApp.
-- **No login.** Anyone with the link can edit, so there is a 15-minute undo and a short history for each machine.
+Feedback revealed a valid exception: some residents need two machines for separate loads.
 
-## 🛠️ Tech & process
+The app now asks whether they still need their other places. This preserves flexibility while encouraging people to release spots they no longer need.
 
-- **Frontend:** one HTML file with CSS variables and vanilla JavaScript, built for phones.
-- **Backend:** Google Apps Script, with Properties and Cache services as free serverless storage, and a lock so two people can't take the same machine.
-- **Built with AI assistance:** I defined the requirements, rules and edge cases, tested it, and rolled it out. Claude (Anthropic) wrote most of the code.
+### 3. Switching phones should not leave someone stuck in a queue
 
-**About this public copy:** the live link and two admin tools are left out for privacy and security.
+Originally, leaving a waitlist depended on information saved in the browser used to join it. Residents who changed phones or browsers could lose that ability.
 
-<details>
-<summary>Run your own copy</summary>
+The updated flow allows someone to remove a name after confirmation and records the removal in the machine’s recent history.
 
-1. Create a new project at [script.google.com](https://script.google.com) and paste in `Code.gs`.
-2. Add an HTML file named `index` and paste in `index.html`.
-3. Edit the `MACHINES` list at the top of `Code.gs` to match your machines.
-4. Choose **Deploy, New deployment, Web app**. Set "Execute as" to *Me* and "Who has access" to *Anyone*.
+This is a deliberate tradeoff for a small, trust-based community: easier correction, with a risk that someone removes another person’s place incorrectly.
 
-If you add a function to wipe test data, delete it afterwards. Apps Script lets any visitor's browser call functions whose names don't end in an underscore.
-</details>
+### 4. A useful reminder can start with a simple handoff
 
-## 🚀 Next
+Residents asked for notifications.
 
-- Alerts when your laundry is done and when your waitlist turn arrives.
-- Ongoing fixes based on feedback from residents.
+The current implementation provides a “Tell the group” button that opens WhatsApp with a prepared bilingual message. The resident chooses the conversation and sends it.
+
+This supports the group’s existing communication habits. It is a manual reminder, not an automatic notification system.
+
+## Rollout and ongoing maintenance
+
+The residence committee introduced the app in the residents’ WhatsApp group. A bilingual instruction poster and QR code were placed beside the machines, and the app link was added to the group description.
+
+<div align="center">
+<img src="docs/poster.jpg" alt="Bilingual instructions displayed beside the machines" width="250">
+&nbsp;
+<img src="docs/whatsapp-announcement.png" alt="The residence committee's WhatsApp announcement, with the app link hidden" width="250">
+</div>
+
+After approximately three weeks of use, residents’ feedback informed the November 18, 2026 update:
+
+| Feedback or need | Product change |
+|---|---|
+| People could not leave a queue after switching devices | Allow confirmed removal from another device and record it |
+| Some residents need two machines | Ask whether to retain other waitlist positions |
+| People wanted help notifying the next person | Add a WhatsApp button with a prepared message |
+| Residents wanted cleaner machines | Add washer and dryer cleaning reminders |
+
+Maintenance has meant revisiting assumptions as well as fixing behavior. A rule that seems sensible in a prototype may need to change once people use it in different ways.
+
+## Early usage evidence
+
+The Google Apps Script dashboard captured on **November 18, 2026** reported the following seven-day summary:
+
+| Metric | Dashboard result |
+|---|---:|
+| Platform-reported users | 46 |
+| Script executions | 2,440 |
+| Execution error rate | 0.12% |
+
+The chart showed user activity on every day from November 12–18, with approximately 6–16 users per day.
+
+These are platform metrics and may include developer testing. Script executions include automatic status checks, so they do not represent laundry cycles. The residence’s 60–70 occupants are the potential audience, not a verified active-user count.
+
+I have not yet measured changes in waiting time or the frequency of laundry conflicts.
+
+## Implementation
+
+The implementation is deliberately compact:
+
+- **Frontend:** HTML, CSS, and vanilla JavaScript, with English and French interface text.
+- **Backend and hosting:** Google Apps Script.
+- **Storage:** Properties Service for persistent data, with Cache Service supporting reads.
+- **Concurrent updates:** a script lock coordinates backend changes.
+- **Communication:** WhatsApp links with prefilled messages.
+
+### Repository structure
+
+```text
+Code_1.gs       Backend actions, storage, machine states, and waitlists
+index_1.html    Interface, styles, translations, and client-side behavior
+docs/          Interface screenshots and rollout photographs
+README.md      Project context, decisions, and setup
+LICENSE        MIT license
+```
+
+The live residence link and administrative tools are omitted from this public copy.
+
+## Known limitations
+
+- Machine status relies on residents keeping it up to date.
+- There is no login or verified identity; the app assumes a trusted community.
+- People with access can change machine status and remove queue entries.
+- The 15-minute undo restores a previous machine state, not the complete queue history.
+- Each machine retains only a short recent activity history.
+- WhatsApp reminders require someone to send them.
+- The repository does not currently include automated tests or load-test results.
+
+## Run your own copy
+
+1. Create a project at [Google Apps Script](https://script.google.com/).
+2. Copy the contents of `Code_1.gs` into the project’s script file.
+3. Create an HTML file named `index` and copy in the contents of `index_1.html`.
+4. Update the `MACHINES` configuration to match your laundry room.
+5. Deploy the project as a web app and configure execution and access settings for your intended users.
+6. Verify the machine-status and waitlist flows before introducing it to residents.
+
+## What I learned and what comes next
+
+The most valuable learning came after the first version was built: separating a finished cycle from an available machine, accommodating people who need multiple machines, and balancing easy corrections with trust.
+
+My ongoing priorities are to:
+
+- Continue collecting residents’ feedback and resolving practical issues.
+- Document repeatable checks for queue transitions, simultaneous actions, and undo behavior.
+- Investigate execution errors and improve recovery from mistakes.
+- Evaluate better reminders and ways to understand usage without collecting unnecessary personal information.
 
 [MIT License](LICENSE)
